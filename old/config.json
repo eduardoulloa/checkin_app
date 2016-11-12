@@ -1,0 +1,29 @@
+{
+  "data_expire": 15,
+	"data_gc": 30,
+	"data_resume": 180,
+  "reminder_email": [
+    {
+      "testing": "1",
+      "production": "7"
+    }
+  ],
+	"types": [
+		{
+			"alias": "medicare",
+			"name": "BlueCHiP for Medicare"
+		},{
+			"alias": "medicare-plan-change",
+			"name": "BlueCHiP for Medicare Plan Change"
+		},{
+			"alias": "directpay",
+			"name": "Direct Pay"
+		},{
+			"alias": "directpay",
+			"name": "Individuals and Families"
+		},{
+			"alias": "plan65",
+			"name": "Plan 65"
+		}
+	]
+}

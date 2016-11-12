@@ -1,0 +1,302 @@
+<?php
+/**
+ * Calls hook_schema() to setup the databases
+ */
+function bcbsri_store_checkin_schema() {
+  $schema['bcbsri_checkin_stores'] = array(
+    'description' => 'Basic information about the user',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'location' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'wait_time' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'green_threshold' => array(
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'orange_threshold' => array(
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'url' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'show_s' => array(
+        'type' => 'int',
+        'description' => 'Boolean 0/1 value',
+        'default' => 1
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  
+  $schema['bcbsri_checkin_visitors'] = array(
+    'description' => 'Basic information about visitors',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'first_name'    => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'last_name'    => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'email' => array(
+        'type' => 'varchar',
+        'length' => 255
+      ),
+      'phone' => array(
+        'type' => 'varchar',
+        'length' => 255
+      ),
+      'check_in' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+       'wait_time' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'not_seen' => array(
+        'type' => 'int',
+        'description' => 'Boolean 0/1 value',
+        'default' => 0
+      ),
+      'seen' => array(
+        'type' => 'int',
+        'description' => 'Boolean 0/1 value',
+        'default' => 0
+      ),
+      'reason_for_visit'    => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'product'    => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'segment'    => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'appointment' => array(
+        'type' => 'int',
+        'description' => 'Boolean 0/1 value'
+      ),
+      'signature_received' => array(
+        'type' => 'int',
+        'description' => 'Boolean 0/1 value'
+      ),
+      'appointment_with' => array(
+        'type' => 'varchar',
+        'length' => 255
+      ),
+      'store_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'promised_wait_time' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'appt_time' => array(
+        'type' => 'varchar',
+        'length' => 255
+      ),
+  ),
+  'foreign keys' => array(
+    'store_id' => array(
+      'table' => 'bcbsri_checkin_stores',
+      'columns' => array('store_id' => 'id'),
+    ),
+  ),
+	'primary key' => array('id'),
+  );
+  
+  
+  return $schema;
+}
+
+
+
+/**
+ * Adds the total wait time for a visitor.
+ */
+function bcbsri_store_checkin_update_7001 () {
+  db_add_field('bcbsri_checkin_visitors', 'wait_time', array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ));
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('The update finished properly.');
+
+  // In case of an error, simply throw an exception with an error message.
+  throw new DrupalUpdateException('Something went wrong; New fields not 100% created.');
+}
+
+/**
+ * Defaults seen and not_seen to 0.
+ */
+function bcbsri_store_checkin_update_7002 () {
+      
+  $seen = array(
+    'type' => 'int',
+    'description' => 'Boolean 0/1 value',
+    'default' => 0
+  );
+  
+  $not_seen = array(
+    'type' => 'int',
+    'description' => 'Boolean 0/1 value',
+    'default' => 0
+  );
+      
+  db_change_field('bcbsri_checkin_visitors', 'seen', 'seen', $seen);
+  db_change_field('bcbsri_checkin_visitors', 'not_seen', 'not_seen', $not_seen);
+
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('The update finished properly.');
+
+  // In case of an error, simply throw an exception with an error message.
+  throw new DrupalUpdateException('Something went wrong; New fields not 100% created.');
+}
+
+function bcbsri_store_checkin_update_7003 () {
+      
+  $green_threshold = array(
+    'type' => 'varchar',
+    'length' => 255
+  );
+      
+  //db_change_field('bcbsri_checkin_stores', 'threshold', 'green_threshold', $green_threshold);
+  db_add_field('bcbsri_checkin_stores', 'orange_threshold', array(
+        'type' => 'varchar',
+        'length' => 255
+      ));
+  //db_change_field('bcbsri_checkin_visitors', 'not_seen', 'not_seen', $not_seen);
+
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('The update finished properly.');
+
+  // In case of an error, simply throw an exception with an error message.
+  throw new DrupalUpdateException('Something went wrong; New fields not 100% created.');
+}
+
+/**
+ * Adds the show field to stores.
+ */
+/*function bcbsri_store_checkin_update_7004 () {
+      
+  $show = array(
+    'type' => 'int',
+    'description' => 'Boolean 0/1 value',
+    'default' => 1
+  );
+  
+  $promised_wait_time = array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE
+  );
+   
+  //db_add_field('bcbsri_checkin_stores', 'show', $show);
+  db_add_field('bcbsri_checkin_visitors', 'promised_wait_time', $promised_wait_time);
+
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('The update finished properly.');
+
+  // In case of an error, simply throw an exception with an error message.
+  throw new DrupalUpdateException('Something went wrong; New fields not 100% created.');
+}*/
+
+/**
+ * Adds the appt. time.
+ */
+function bcbsri_store_checkin_update_7005 () {
+      
+  $appt_time = array(
+    'type' => 'varchar',
+    'length' => 255
+  );
+      
+  //db_change_field('bcbsri_checkin_stores', 'threshold', 'green_threshold', $green_threshold);
+  db_add_field('bcbsri_checkin_visitors', 'appt_time', $appt_time);
+
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('The update finished properly.');
+
+  // In case of an error, simply throw an exception with an error message.
+  throw new DrupalUpdateException('Something went wrong; New fields not 100% created.');
+}      
+
+function bcbsri_store_checkin_update_7006 () {
+      
+  $appt_time = array(
+    'type' => 'varchar',
+    'length' => 255
+  );
+      
+  //db_change_field('bcbsri_checkin_stores', 'threshold', 'green_threshold', $green_threshold);
+  db_change_field('bcbsri_checkin_visitors', 'appt_time', 'appt_time', $appt_time);
+  //db_add_field('bcbsri_checkin_visitors', 'appt_time', $appt_time);
+
+  // To display a message to the user when the update is completed, return it.
+  // If you do not want to display a completion message, simply return nothing.
+  return t('The update finished properly.');
+
+  // In case of an error, simply throw an exception with an error message.
+  throw new DrupalUpdateException('Something went wrong; New fields not 100% created.');
+}      
+
+/**
+ * Calls hook_install()
+ */
+function bcbsri_store_checkin_install() {
+	//drupal_install_schema('bcbsri_online_applications');
+}
+
+/**
+ * Calls hook_uninstall()
+ */
+function bcbsri_store_checkin_uninstall() {
+	//drupal_uninstall_schema('bcbsri_online_applications');
+}

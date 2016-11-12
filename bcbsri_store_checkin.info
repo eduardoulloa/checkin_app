@@ -1,0 +1,4 @@
+name = BCBSRI Store Check-In
+description = Store Check-In
+core = 7.x
+package = Blue Cross Blue Shield of RI

@@ -1,0 +1,332 @@
+<?php
+$curPath = dirname(__FILE__); /*getcwd();*/
+
+include_once('bcbsri_store_checkin.storeactions.php');
+
+/**
+ * Implementation of hook_preprocess_HOOK().
+ */
+function bcbsri_store_checkin_preprocess_html(&$variables){
+  $path = drupal_get_path_alias();
+  $regex = '/yourbluestore\/([a-zA-Z-0-9]*)\/([a-zA-Z-0-9]*)\/display/iA';
+  if (preg_match($regex, $path)) {
+    $variables['theme_hook_suggestions'][] = 'html__bcbsri_store_checkin_display';
+  }
+  $regex2 = '/yourbluestore\/([a-zA-Z-0-9-\w]*)\/([a-zA-Z-0-9]*)\/queue/iA';
+  if (preg_match($regex2, $path)) {
+    $variables['theme_hook_suggestions'][] = 'html__bcbsri_store_checkin_queue';
+  }
+  $regex3 = '/yourbluestore\/([a-zA-Z-0-9]*)\/admin/iA';
+  if (preg_match($regex3, $path)) {
+    $variables['theme_hook_suggestions'][] = 'html__bcbsri_store_checkin_admin';
+  }
+}
+function bcbsri_store_checkin_preprocess_page(&$variables){
+  $path = drupal_get_path_alias();
+  $regex = '/yourbluestore\/([a-zA-Z-0-9]*)\/([a-zA-Z-0-9]*)\/display/iA';
+  if (preg_match($regex, $path)) {
+    $variables['theme_hook_suggestions'][] = 'page__bcbsri_store_checkin_display';
+  }
+  $regex2 = '/yourbluestore\/([a-zA-Z-0-9]*)\/([a-zA-Z-0-9]*)\/queue/iA';
+  if (preg_match($regex2, $path)) {
+    $variables['theme_hook_suggestions'][] = 'page__bcbsri_store_checkin_queue';
+  }
+  $regex3 = '/yourbluestore\/([a-zA-Z-0-9]*)\/admin/iA';
+  if (preg_match($regex3, $path)) {
+    $variables['theme_hook_suggestions'][] = 'page__bcbsri_store_checkin_admin';
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function bcbsri_store_checkin_theme_registry_alter(&$theme_registry) {
+  $extension   = '.tpl.php';
+  $module_path = drupal_get_path('module', 'bcbsri_store_checkin');
+  $files       = file_scan_directory($module_path . '/templates', '/' . preg_quote($extension) . '$/');
+  foreach ($files as $file) {
+    $template = drupal_basename($file->filename, $extension);
+    $theme    = str_replace('-', '_', $template);
+    list($base_theme, $specific) = explode('__', $theme, 2);
+  
+    // Don't override base theme.
+    if (!empty($specific) && isset($theme_registry[$base_theme])) {
+      $themeVariables = (!empty($theme_registry[$base_theme]['variables']) ? $theme_registry[$base_theme]['variables'] : '');
+      $theme_info = array(
+        'template'   => $template,
+        'path'       => drupal_dirname($file->uri),
+        'variables'  => $themeVariables,
+        'base hook'  => $base_theme,
+        // Other available value: theme_engine.
+        'type'       => 'module',
+        'theme path' => $module_path,
+      );
+  
+      $theme_registry[$theme] = $theme_info;
+    }
+  }
+}
+
+/* ********************************************************
+ * Implements hook_cron().
+ ******************************************************** */
+function bcbsri_store_checkin_cron() {
+	$config = bcbsri_online_application_get_json('config');
+	$gc = $config['data_gc'];
+	$gcResume = $config['data_resume'];
+  $reminderEmail = (isset($_SERVER['AH_SITE_ENVIRONMENT']) && $_SERVER['AH_SITE_ENVIRONMENT'] != 'prod' ? $config['reminder_email'][0]['testing'] : $config['reminder_email'][0]['production']);
+  $tableData = 'bcbsri_online_application_udata';
+  $tableFields = 'bcbsri_online_application_ufields';
+  $tablePlans = 'bcbsri_online_application_plans';
+  /* ******************************************************
+   * TODO: When setup will need to add infogix to this cron
+   * will have to verify infogix on data table is 0 and pull
+   * fields in and push to infogix. Will also have to verify
+   * cron_uf is not set to 1
+   ****************************************************** */
+	if($gc != 0) {
+		/* ******************************************************
+     * find latest modified time to be before garbage collection time
+     * Keeping old data table just to make sure it empties out.
+     ****************************************************** */
+		db_delete('bcbsri_online_application_data')
+			->condition('end_time', strtotime('-' . $gc . ' days'), '<')
+			->execute();
+    $query = db_select($tableData, 'boad');
+    $query->fields('boad', array('auth', 'cron_uf'));
+    $query->condition('boad.end_time', strtotime('-' . $gc . ' days'), '<');
+    $result = $query->execute();
+    foreach($result as $r) {
+      $auth = $r->auth;
+      $cron_uf = $r->cron_uf;
+      if((int)$cron_uf < 1) {
+        db_delete($tableFields)
+          ->condition('auth', $auth)
+          ->execute();
+        bcbsri_online_application_db_set($tableData, array('auth' => $auth, 'cron_uf' => 1), 'auth');
+      }
+    }
+	}
+	if($gcResume != 0) {
+		/* ******************************************************
+     * find latest modified time to be before garbage collection time
+     * Since we are clearing the auth on the data table, also clearing the plans table
+     ****************************************************** */
+    $query = db_select($tableData, 'boad');
+    $query->fields('boad', array('auth', 'cron_uf'));
+    $query->condition('boad.end_time', strtotime('-' . $gcResume . ' days'), '<');
+    $result = $query->execute();
+    foreach($result as $r) {
+      $auth = $r->auth;
+      db_delete($tableData)
+        ->condition('auth', $auth)
+        ->execute();
+      db_delete($tablePlans)
+        ->condition('auth', $auth)
+        ->execute();
+      if($r->cron_uf == 0) {
+        db_delete($tableFields)
+          ->condition('auth', $auth)
+          ->execute();
+      }
+    }
+	}
+  /* ******************************************************
+   * Send reminder emails to people that have not returned 
+   * in x number of days to complete their app.
+   * TODO: this should be done in Marketo at a future date
+   ****************************************************** */
+  $query = db_select($tableData, 'boad');
+  $query->fields('boad', array('auth', 'resumedk', 'resumed_email', 'reminder_sent'));
+  $query->condition('boad.end_time', strtotime('-' . $reminderEmail . ' days'), '<');
+  $query->condition('boad.reminder_sent', 1, '<');
+  $query->isNotNull('boad.resumedk');
+  $query->isNotNull('boad.resumed_email');
+  $result = $query->execute();
+  if($result->rowCount() > 0) {
+    foreach($result as $r) {
+      bcbsri_online_application_db_set($tableData, array('auth' => $auth, 'reminder_sent' => 1), 'auth');
+      
+      $headers = "From: website@bcbsri.org\r\n";
+      // $headers .= "Reply-To: \r\n";
+      $headers .= "MIME-Version: 1.0\r\n";
+      $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+      $subject = 'Can we help?';
+      $message = '<p>We saved your form for you last week, and we\'re here to help if you need any assistance. No question is too small or large.</p>';
+      $message .= '<p>If you simply haven\'t had time to get back to the form, just use the link below when you are ready. It will take you to the form right where you left off. You will need the <strong>form ID</strong> below to finish the process.</p>';
+      $message .= '<p>If you have any questions, or if you just want a little assistance finishing the form, please let us help. You can call us seven days a week or stop into your nearest Your Blue Store, and we\'ll walk you through the rest of the process.</p>';
+      $message .= '<p>Form ID: '.$r->resumedk.'</p>';
+      $message .= '<p><a href="' . (isset($_SERVER['AH_SITE_ENVIRONMENT']) && $_SERVER['AH_SITE_ENVIRONMENT'] != 'prod' ? 'http://bcbsrihipaastg.prod.acquia-sites.com' : 'https://www.bcbsri.com') . '/shop/resume">' . (isset($_SERVER['AH_SITE_ENVIRONMENT']) && $_SERVER['AH_SITE_ENVIRONMENT'] != 'prod' ? 'http://bcbsrihipaastg.prod.acquia-sites.com' : 'https://www.bcbsri.com') . '/shop/resume</a></p>';
+      $message .= '<p><strong>Call us<strong><br />Call the BlueCHiP for Medicare Sales Department at 1-800-505-BLUE (2583) (TTY users should call 711).</p>';
+      $message .= '<p>Monday through Friday, 8:00 a.m. to 8:00 p.m. (Open seven days a week, 8:00 a.m. to 8:00 p.m., from October 1 - February 14.)</p>';
+      $message .= '<p>You can use our automated answering system outside of these hours.</p>';
+      $message .= '<p><strong>Visit Your Blue Store</strong><br /><strong>Warwick:</strong> Cowesett Corners, 300 Quaker Lane<br /><strong>Bristol:</strong> Bell Tower Plaza, 576 Metacom Ave., Unit 18<br /><strong>Lincoln:</strong> Lincoln Mall, 622 George Washington Highway</p>';
+      $message .= '<p>Monday - Friday, 9:00 a.m. to 5:00 p.m.<br />(Extended hours: October 15, 2015 - January 31, 2016, Monday until 6:00 p.m. and Saturday, 9:00 a.m. to 1:00 p.m.)</p>';
+      mail($r->resumed_email, $subject, $message, $headers);
+    }
+  }
+}
+
+/* ********************************************************
+ * Implements hook_permission().
+ ******************************************************** */
+function bcbsri_store_checkin_permission(){
+  $permission = array(
+    'store checkin' => array(
+      'title' => t('Store checkin'),
+    ),
+  );
+  return $permission;
+}
+
+/* ********************************************************
+ * Implements hook_menu().
+ ******************************************************** */
+function bcbsri_store_checkin_menu() {
+  $items['yourbluestore/yhXS7LpB/admin'] = array(
+    'title' => t('BCBSRI Check-In'),
+    'title arguments' => array(),
+    'page callback' => 'bcbsri_store_checkin_admin',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('store checkin'),
+    'type' => MENU_CALLBACK,
+    'page arguments' => array()
+  );
+  $items['yourbluestore/yhXS7LpB/%/queue'] = array(
+    'title' => t('@store BCBSRI Check-In'),
+    'title arguments' => array('@store' => 2),
+    'page callback' => 'bcbsri_store_checkin_queue',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('store checkin'),
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(2)
+  );
+  $items['yourbluestore/yhXS7LpB/%/display'] = array(
+    'title' => t('@store BCBSRI Check-In'),
+    'title arguments' => array('@store' => 2),
+    'page callback' => 'bcbsri_store_checkin_store',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(2)
+  );
+  $items['yourbluestore/yhXS7LpB/addstore'] = array(
+    'title' => t('BCBSRI Store Check-In - Add Store'),
+    'page callback' => 'bcbsri_store_checkin_addstore',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/addvisitor'] = array(
+    'title' => t('BCBSRI Store Check-In - Add Visitor'),
+    'page callback' => 'bcbsri_store_checkin_addvisitor',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/updatevisitorlist'] = array(
+    'title' => t('BCBSRI Store Check-In - Update Visitor List'),
+    'page callback' => 'bcbsri_store_checkin_updatevisitorlist',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/updatevisitor'] = array(
+    'title' => t('BCBSRI Store Check-In - Update Visitor'),
+    'page callback' => 'bcbsri_store_checkin_updatevisitor',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/setstorewaittime'] = array(
+    'title' => t('BCBSRI Store Check-In - Update Visitor'),
+    'page callback' => 'bcbsri_store_checkin_setstorewaittime',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/getstorelists'] = array(
+    'title' => t('BCBSRI Store Check-In - Get Store Lists'),
+    'page callback' => 'bcbsri_store_checkin_getstorelists',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/getstorewaittime'] = array(
+    'title' => t('BCBSRI Store Check-In - Get Store Lists'),
+    'page callback' => 'bcbsri_store_checkin_getstorewaittime',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/getadmindata'] = array(
+    'page callback' => 'bcbsri_store_checkin_getadmindata',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/editstore'] = array(
+    'page callback' => 'bcbsri_store_checkin_editstore',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/removestore'] = array(
+    'page callback' => 'bcbsri_store_checkin_removestore',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/gethistory'] = array(
+    'page callback' => 'bcbsri_store_checkin_generatereport',
+    'delivery callback' => 'bcbsri_store_checkin_outputreport',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/sendtomarketo'] = array(
+    'page callback' => 'bcbsri_store_checkin_sendtomarketo',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/getstoreurls'] = array(
+    'page callback' => 'bcbsri_store_checkin_getstoreurls',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/getremovedstores'] = array(
+    'page callback' => 'bcbsri_store_checkin_getremovedstores',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['yourbluestore/yhXS7LpB/recoverstore'] = array(
+    'page callback' => 'bcbsri_store_checkin_recoverstore',
+    'delivery callback' => 'drupal_json_output',
+    'menu name' => 'bcbsri_store_checkin',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+function bcbsri_store_checkin_generatereport(){
+  $output = '';
+  return $output;
+}
+

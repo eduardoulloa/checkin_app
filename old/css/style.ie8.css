@@ -1,0 +1,147 @@
+.msie.ie8 .show-for-medium-down,
+.msie.ie8 .show-for-medium,
+.msie.ie8 .show-for-small,
+.msie.ie8 .show-on-android {
+	display: none !important;
+}
+
+.msie.ie8 .show-for-large-up,
+.msie.ie8 .hide-for-medium-down,
+.msie.ie8 .hide-for-small,
+.msie.ie8 .hide-on-android {
+	display: block !important;
+}
+
+.msie.ie8 .small-1,  .msie.ie8 .row .small-1  { width: 8.33333%;  }
+.msie.ie8 .small-2,  .msie.ie8 .row .small-2  { width: 16.66667%; }
+.msie.ie8 .small-3,  .msie.ie8 .row .small-3  { width: 25%;       }
+.msie.ie8 .small-4,  .msie.ie8 .row .small-4  { width: 33.33333%; }
+.msie.ie8 .small-5,  .msie.ie8 .row .small-5  { width: 41.66667%; }
+.msie.ie8 .small-6,  .msie.ie8 .row .small-6  { width: 50%;       }
+.msie.ie8 .small-7,  .msie.ie8 .row .small-7  { width: 58.33333%; }
+.msie.ie8 .small-8,  .msie.ie8 .row .small-8  { width: 66.66667%; }
+.msie.ie8 .small-9,  .msie.ie8 .row .small-9  { width: 75%;       }
+.msie.ie8 .small-10, .msie.ie8 .row .small-10 { width: 83.33333%; }
+.msie.ie8 .small-11, .msie.ie8 .row .small-11 { width: 91.66667%; }
+.msie.ie8 .small-12, .msie.ie8 .row .small-12 { width: 100%;      }
+
+.msie.ie8 .medium-1,  .msie.ie8 .row .medium-1  { width: 8.33333%;  }
+.msie.ie8 .medium-2,  .msie.ie8 .row .medium-2  { width: 16.66667%; }
+.msie.ie8 .medium-3,  .msie.ie8 .row .medium-3  { width: 25%;       }
+.msie.ie8 .medium-4,  .msie.ie8 .row .medium-4  { width: 33.33333%; }
+.msie.ie8 .medium-5,  .msie.ie8 .row .medium-5  { width: 41.66667%; }
+.msie.ie8 .medium-6,  .msie.ie8 .row .medium-6  { width: 50%;       }
+.msie.ie8 .medium-7,  .msie.ie8 .row .medium-7  { width: 58.33333%; }
+.msie.ie8 .medium-8,  .msie.ie8 .row .medium-8  { width: 66.66667%; }
+.msie.ie8 .medium-9,  .msie.ie8 .row .medium-9  { width: 75%;       }
+.msie.ie8 .medium-10, .msie.ie8 .row .medium-10 { width: 83.33333%; }
+.msie.ie8 .medium-11, .msie.ie8 .row .medium-11 { width: 91.66667%; }
+.msie.ie8 .medium-12, .msie.ie8 .row .medium-12 { width: 100%;      }
+
+.msie.ie8 .large-1,  .msie.ie8 .row .large-1  { width: 8.33333%;  }
+.msie.ie8 .large-2,  .msie.ie8 .row .large-2  { width: 16.66667%; }
+.msie.ie8 .large-3,  .msie.ie8 .row .large-3  { width: 25%;       }
+.msie.ie8 .large-4,  .msie.ie8 .row .large-4  { width: 33.33333%; }
+.msie.ie8 .large-5,  .msie.ie8 .row .large-5  { width: 41.66667%; }
+.msie.ie8 .large-6,  .msie.ie8 .row .large-6  { width: 50%;       }
+.msie.ie8 .large-7,  .msie.ie8 .row .large-7  { width: 58.33333%; }
+.msie.ie8 .large-8,  .msie.ie8 .row .large-8  { width: 66.66667%; }
+.msie.ie8 .large-9,  .msie.ie8 .row .large-9  { width: 75%;       }
+.msie.ie8 .large-10, .msie.ie8 .row .large-10 { width: 83.33333%; }
+.msie.ie8 .large-11, .msie.ie8 .row .large-11 { width: 91.66667%; }
+.msie.ie8 .large-12, .msie.ie8 .row .large-12 { width: 100%;      }
+
+.msie.ie8 .row .small-offset-1  { margin-left: 8.33333%;  }
+.msie.ie8 .row .small-offset-2  { margin-left: 16.66667%; }
+.msie.ie8 .row .small-offset-3  { margin-left: 25%;       }
+.msie.ie8 .row .small-offset-4  { margin-left: 33.33333%; }
+.msie.ie8 .row .small-offset-5  { margin-left: 41.66667%; }
+.msie.ie8 .row .small-offset-6  { margin-left: 50%;       }
+.msie.ie8 .row .small-offset-7  { margin-left: 58.33333%; }
+.msie.ie8 .row .small-offset-8  { margin-left: 66.66667%; }
+.msie.ie8 .row .small-offset-9  { margin-left: 75%;       }
+.msie.ie8 .row .small-offset-10 { margin-left: 83.33333%; }
+.msie.ie8 .row .small-offset-11 { margin-left: 91.66667%; }
+.msie.ie8 .row .small-offset-12 { margin-left: 100%;      }
+
+.msie.ie8 .row .medium-offset-1  { margin-left: 8.33333%;  }
+.msie.ie8 .row .medium-offset-2  { margin-left: 16.66667%; }
+.msie.ie8 .row .medium-offset-3  { margin-left: 25%;       }
+.msie.ie8 .row .medium-offset-4  { margin-left: 33.33333%; }
+.msie.ie8 .row .medium-offset-5  { margin-left: 41.66667%; }
+.msie.ie8 .row .medium-offset-6  { margin-left: 50%;       }
+.msie.ie8 .row .medium-offset-7  { margin-left: 58.33333%; }
+.msie.ie8 .row .medium-offset-8  { margin-left: 66.66667%; }
+.msie.ie8 .row .medium-offset-9  { margin-left: 75%;       }
+.msie.ie8 .row .medium-offset-10 { margin-left: 83.33333%; }
+.msie.ie8 .row .medium-offset-11 { margin-left: 91.66667%; }
+.msie.ie8 .row .medium-offset-12 { margin-left: 100%;      }
+
+.msie.ie8 .row .large-offset-1  { margin-left: 8.33333%;  }
+.msie.ie8 .row .large-offset-2  { margin-left: 16.66667%; }
+.msie.ie8 .row .large-offset-3  { margin-left: 25%;       }
+.msie.ie8 .row .large-offset-4  { margin-left: 33.33333%; }
+.msie.ie8 .row .large-offset-5  { margin-left: 41.66667%; }
+.msie.ie8 .row .large-offset-6  { margin-left: 50%;       }
+.msie.ie8 .row .large-offset-7  { margin-left: 58.33333%; }
+.msie.ie8 .row .large-offset-8  { margin-left: 66.66667%; }
+.msie.ie8 .row .large-offset-9  { margin-left: 75%;       }
+.msie.ie8 .row .large-offset-10 { margin-left: 83.33333%; }
+.msie.ie8 .row .large-offset-11 { margin-left: 91.66667%; }
+.msie.ie8 .row .large-offset-12 { margin-left: 100%;      }
+
+.msie.ie8 .push-1  { position: relative; right: auto; left: 8.33333%;  }
+.msie.ie8 .push-2  { position: relative; right: auto; left: 16.66667%; }
+.msie.ie8 .push-3  { position: relative; right: auto; left: 25%;       }
+.msie.ie8 .push-4  { position: relative; right: auto; left: 33.33333%; }
+.msie.ie8 .push-5  { position: relative; right: auto; left: 41.66667%; }
+.msie.ie8 .push-6  { position: relative; right: auto; left: 50%;       }
+.msie.ie8 .push-7  { position: relative; right: auto; left: 58.33333%; }
+.msie.ie8 .push-8  { position: relative; right: auto; left: 66.66667%; }
+.msie.ie8 .push-9  { position: relative; right: auto; left: 75%;       }
+.msie.ie8 .push-10 { position: relative; right: auto; left: 83.33333%; }
+.msie.ie8 .push-11 { position: relative; right: auto; left: 91.66667%; }
+.msie.ie8 .push-12 { position: relative; right: auto; left: 100%;      }
+
+.msie.ie8 .pull-1  { position: relative; left: auto; right: 8.33333%;  }
+.msie.ie8 .pull-2  { position: relative; left: auto; right: 16.66667%; }
+.msie.ie8 .pull-3  { position: relative; left: auto; right: 25%;       }
+.msie.ie8 .pull-4  { position: relative; left: auto; right: 33.33333%; }
+.msie.ie8 .pull-5  { position: relative; left: auto; right: 41.66667%; }
+.msie.ie8 .pull-6  { position: relative; left: auto; right: 50%;       }
+.msie.ie8 .pull-7  { position: relative; left: auto; right: 58.33333%; }
+.msie.ie8 .pull-8  { position: relative; left: auto; right: 66.66667%; }
+.msie.ie8 .pull-9  { position: relative; left: auto; right: 75%;       }
+.msie.ie8 .pull-10 { position: relative; left: auto; right: 83.33333%; }
+.msie.ie8 .pull-11 { position: relative; left: auto; right: 91.66667%; }
+.msie.ie8 .pull-12 { position: relative; left: auto; right: 100%;      }
+
+.msie.ie8 .column .small-centered,
+.msie.ie8 .columns .small-centered,
+.msie.ie8 .column .medium-centered,
+.msie.ie8 .columns .medium-centered,
+.msie.ie8 .column .large-centered,
+.msie.ie8 .columns .large-centered { margin-left: auto; margin-right: auto; float: none !important; }
+
+.msie.ie8 .column .small-uncentered,
+.msie.ie8 .columns .small-uncentered,
+.msie.ie8 .column .medium-uncentered,
+.msie.ie8 .columns .medium-uncentered,
+.msie.ie8 .column .large-uncentered,
+.msie.ie8 .columns .large-uncentered { margin-left: 0; margin-right: 0; float: left !important; }
+
+.msie.ie8 .row { width: 1000px; }
+.msie.ie8 .row .row { width: 100%; }
+
+.msie.ie8 .column, .msie.ie8 .columns {padding:0 10px;}
+
+.msie.ie8 .bcbsribg {height:130px;}
+.msie.ie8 .menu-toggle {display: none;}
+.msie.ie8 .page-article-image {width:280px; margin-right:10px;}
+.msie.ie8 .responsive-menu, .msie.ie8 .responsive-menu.links.inline {max-height: none;overflow: visible;}
+.msie.ie8 .responsive-menu li {display: inherit;margin:0 24px;}
+.msie.ie8 .responsive-menu.inline li {display: inline-block;}
+.msie.ie8 .responsive-menu .sub-menu {position: absolute;z-index: 100;max-height: 0;overflow: hidden;}
+.msie.ie8 .responsive-menu .sub-menu.active {max-height: none;overflow: visible;}
+.msie.ie8 .responsive-menu .sub-menu li {display: block;margin:0 3px;}
+.msie.ie8 .rhodeaheadbg {height:130px;}
